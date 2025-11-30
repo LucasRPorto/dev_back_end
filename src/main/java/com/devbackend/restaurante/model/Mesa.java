@@ -18,7 +18,7 @@ public class Mesa {
     private Boolean disponivel;
 
     @ManyToOne
-    @JoinColumn(name = "restaurante_id", nullable = false)
+    @JoinColumn(name = "restaurante_id", nullable = true)
     private Restaurante restaurante;
 
     @OneToOne(mappedBy = "mesa")
