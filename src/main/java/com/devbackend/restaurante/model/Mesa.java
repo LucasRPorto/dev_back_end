@@ -21,9 +21,6 @@ public class Mesa {
     @JoinColumn(name = "restaurante_id", nullable = true)
     private Restaurante restaurante;
 
-    @OneToOne(mappedBy = "mesa")
-    private Conta contaAtual;
-
     @ManyToOne
     @JoinColumn(name = "garcom_id")
     private Garcom garcom;

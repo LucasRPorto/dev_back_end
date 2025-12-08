@@ -4,6 +4,8 @@ import com.devbackend.restaurante.dto.ItemPedidoDTO;
 import com.devbackend.restaurante.dto.PedidoDTO;
 import com.devbackend.restaurante.model.*;
 import com.devbackend.restaurante.repository.*;
+import com.devbackend.restaurante.service.exception.RecursoNaoEncontradoException;
+import com.devbackend.restaurante.service.exception.RegraDeNegocioException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,24 +13,24 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PedidoService {
 
-    @Autowired
-    private PedidoRepository pedidoRepository;
-    @Autowired
-    private ContaRepository contaRepository;
-    @Autowired
-    private ItemCardapioRepository itemCardapioRepository;
-    @Autowired
-    private ClienteRepository clienteRepository;
+    @Autowired private PedidoRepository pedidoRepository;
+    @Autowired private ContaRepository contaRepository;
+    @Autowired private ItemCardapioRepository itemCardapioRepository;
+    @Autowired private ClienteRepository clienteRepository;
 
-    // Método para o endpoint POST /pedidos
     @Transactional
     public PedidoDTO adicionarPedido(Long idConta, List<ItemPedidoDTO> itensDto) {
         Conta conta = contaRepository.findById(idConta)
-                .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Conta não encontrada com o ID: " + idConta));
+
+        if (conta.getPagamento() != null) {
+            throw new RegraDeNegocioException("Não é possível adicionar pedidos a uma conta que já foi paga e fechada.");
+        }
 
         Pedido pedido = new Pedido();
         pedido.setConta(conta);
@@ -44,7 +46,7 @@ public class PedidoService {
             ItemCardapio produto = itemCardapioRepository.findAll().stream()
                     .filter(i -> i.getNome().equalsIgnoreCase(itemDto.getNomePrato()))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Produto não encontrado: " + itemDto.getNomePrato()));
+                    .orElseThrow(() -> new RecursoNaoEncontradoException("Item do cardápio não encontrado: " + itemDto.getNomePrato()));
 
             ItemPedido itemPedido = new ItemPedido();
             itemPedido.setItemCardapio(produto);
@@ -72,10 +74,9 @@ public class PedidoService {
             dto.setQuantidade(item.getQuantidade());
             dto.setPrecoUnitario(item.getItemCardapio().getPreco());
             return dto;
-        }).toList();
+        }).collect(Collectors.toList());
 
         retorno.setItens(itensRetorno);
-
         return retorno;
     }
 }

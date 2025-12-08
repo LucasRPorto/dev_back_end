@@ -17,7 +17,7 @@ public class Conta {
 
     private String nome;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "mesa_id")
     private Mesa mesa;
 

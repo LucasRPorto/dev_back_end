@@ -25,6 +25,12 @@ public class MesaService {
             dto.setNumero(mesa.getNumero());
             dto.setDisponivel(mesa.getDisponivel());
 
+            if (mesa.getGarcom() != null) {
+                dto.setNomeGarcomResponsavel(mesa.getGarcom().getNome());
+            } else {
+                dto.setNomeGarcomResponsavel("Sem garçom definido");
+            }
+
             return dto;
         }).collect(Collectors.toList());
     }

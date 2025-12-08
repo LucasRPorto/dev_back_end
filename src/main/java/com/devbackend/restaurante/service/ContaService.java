@@ -7,6 +7,8 @@ import com.devbackend.restaurante.model.Mesa;
 import com.devbackend.restaurante.repository.ClienteRepository;
 import com.devbackend.restaurante.repository.ContaRepository;
 import com.devbackend.restaurante.repository.MesaRepository;
+import com.devbackend.restaurante.service.exception.RecursoNaoEncontradoException;
+import com.devbackend.restaurante.service.exception.RegraDeNegocioException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,15 +25,12 @@ public class ContaService {
     @Autowired
     private ClienteRepository clienteRepository;
 
-    // Método para o endpoint POST /contas
     @Transactional
     public ContaDTO abrirConta(Long idMesa, String nomeCliente) {
-
         Mesa mesa = mesaRepository.findById(idMesa)
-                .orElseThrow(() -> new RuntimeException("Mesa não encontrada!"));
-
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Mesa não encontrada com o ID: " + idMesa));
         if (!mesa.getDisponivel()) {
-            throw new RuntimeException("Esta mesa já está ocupada!");
+            throw new RegraDeNegocioException("Esta mesa já está ocupada!");
         }
 
         mesa.setDisponivel(false);
