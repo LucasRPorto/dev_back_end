@@ -1,5 +1,6 @@
 package com.devbackend.restaurante.controller;
 
+import com.devbackend.restaurante.dto.ReciboDTO;
 import com.devbackend.restaurante.service.PagamentoService;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,20 +15,16 @@ public class PagamentoController {
     private PagamentoService pagamentoService;
 
     @PostMapping
-    public ResponseEntity<String> fecharConta(@RequestBody PagamentoInput input) {
-        pagamentoService.fecharConta(input.getIdConta());
-        return ResponseEntity.ok("Conta fechada e mesa liberada com sucesso!");
+    public ResponseEntity<ReciboDTO> fecharConta(@RequestBody PagamentoInput input) {
+        ReciboDTO recibo = pagamentoService.fecharConta(input.getIdConta());
+        return ResponseEntity.ok(recibo);
     }
 
+    @Data
     public static class PagamentoInput {
         private Long idConta;
 
-        public Long getIdConta() {
-            return idConta;
-        }
-
-        public void setIdConta(Long idConta) {
-            this.idConta = idConta;
-        }
+        public Long getIdConta() { return idConta; }
+        public void setIdConta(Long idConta) { this.idConta = idConta; }
     }
 }
